@@ -18,7 +18,7 @@ class Config(BaseModel):
     fuzzy: Dict[str, float | str]
 
 
-def load_config(config_path: str = "config.yaml") -> Config:
+def load_config(config_path: str = "../config.yaml") -> Config:
     with open(config_path) as f:
         raw_config = yaml.safe_load(f)
 

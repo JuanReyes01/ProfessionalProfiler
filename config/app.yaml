@@ -1,0 +1,4 @@
+scraping:
+  paths:
+    authors: "data/raw/autores.csv"
+    processed_data: "data/processed/wikipedia_files"
