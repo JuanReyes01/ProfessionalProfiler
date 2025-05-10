@@ -16,7 +16,7 @@ All authors were manually downloaded from the ProQuest USNewsStream Database usi
 - Selection process: The authors were opinion columnist selected from the top circulating dailies from 1980 to Nov 2024 in the U.S per Statista 2023, this includes:
 	- Star tribune
 	- Chicago tribune
-	- New York Post 
+	- New York Post
 	- Tampa Bay Times
 	- New York Times
 	- Newsday
@@ -28,14 +28,14 @@ All authors were manually downloaded from the ProQuest USNewsStream Database usi
 > **NOTE:** As of today I don't know Statista's methodology for this statistics, in the future I should gather this information to note any bias in the collection of this information.
 
 ### Dataset Structure
-Preprocessing consisted on using a NER model to obtain and reorganize the names that were included in unstructured text i.e:  
+Preprocessing consisted on using a NER model to obtain and reorganize the names that were included in unstructured text i.e:
 > This article was written by [person1] from [newspaper1], and [person2] from [newspaper2] with collaborations from [person3] and images from [person4].
 
 After applying the NER model the author column was separated from the article dataset in order to normalize the data. As the author and article databases contain many to many relations this were the resulting tables:
 Article database:
 
-    
-	    {	 
+
+	    {
 	     "article_id": <int>,
 	     "texto_completo": <String>,
 	     "titulo": <String>,
@@ -44,7 +44,7 @@ Article database:
 	     "editorial": <String>,
 	     "tipo_fuente": <String>
 	     }
-    
+
 Author database:
 
 		{
@@ -70,24 +70,24 @@ This way all the provenance information about the author can be aggregated from 
 2. In order to create an Agentic AI pipeline the following architecture is built:
 2.1  Data Validation: Pydactic will be used with the following classes:
 
-	    class  FieldEnum(str, Enum): 	
+	    class  FieldEnum(str, Enum):
 	    	ASSOCIATE=  "Associate's"
-	       BACHELOR= "Bachelor's" 
-	    	MASTER=  "Master's" 
-	    	DOCTOR="Doctor's" 
+	       BACHELOR= "Bachelor's"
+	    	MASTER=  "Master's"
+	    	DOCTOR="Doctor's"
 	    	UNKNOWN=  "Unknown"
 	    	NONE="No degree"
 
 	    class  Study(BaseModel):
 	    	Degree_type: FieldEnum  =  Field(... , description="The type of degree obtained by the subject")
 	    	Degree_field: Optional[list[str]] =  Field(default_factory=list, description="The area in which this degree was obtained (if specified)"))
-	    
+
 	    class  ProfessionalProfiler(BaseModel):
 			studies: list[Study] =  Field(default_factory=list, description="List of degrees obtained by the subject")
-	     
+
 
 2.2 Prompt Engineering: A prompt will be used in order to obtain the best possible response from the LLM, an example of such is:
-	
+
 		    	Steps:
 		    	    1. Analise the given Wikipedia text from the subject search for key words that mention academic degrees, this could include: B.A, M.A, Bachelor, Masters, Doctor, etc...
 		    	    2. Once found categorize each degree obtained selecting from the following list [FieldEnum.ASSOCIATE, FieldEnum.BACHELOR,FieldEnum.MASTER,FieldEnum.DOCTOR, FieldEnum.UNKNOWN,FieldEnum.NONE] i.e:
@@ -101,7 +101,7 @@ This way all the provenance information about the author can be aggregated from 
 		    				 "Degree_field":["Economy","Mathematics"]},
 		    				{"Degree_type":"FieldEnum.MASTER",
 		    				 "Degree_field":["Economy"]},
-		    			]  
+		    			]
 		    	4. Be careful and check that the degree was completed, search for phrases as "Dropped out" or "Did not graduate"
 		    	5. If no completed degree is mentioned, return a single entry with Degree_type = FieldEnum.NONE and Degree_field = [].
 		    	Expectations:
@@ -155,17 +155,17 @@ This way all the provenance information about the author can be aggregated from 
 				},
 			]
 		]
-2.3 Test Dataset		                            
+2.3 Test Dataset
 A test dataset with 100 manually annotated individuals  as a starting point in the json format has been compiled, the format is as follows:
 
-    { 
-    "Name": "Harry Litman", 
-    "Degrees": [ 
-	    { "Degree_type": "Bachelor's", 
+    {
+    "Name": "Harry Litman",
+    "Degrees": [
+	    { "Degree_type": "Bachelor's",
 	      "Degree_field": [] },
 	    {"Degree_type": "Doctor's",
          "Degree_field": ["J.D"]
-        }   
+        }
     ],
     "id": 1
     },
@@ -173,7 +173,7 @@ A test dataset with 100 manually annotated individuals  as a starting point in t
 In order to reduce the amount of text inputed into the LLM we will first, collect only the parts known for containing educational information on wikipedia i.e infobox, education, early life, Career. As a fallback strategy all the text from all sections will be processed, this will not impact significantly as Wikipedia articles that have different formatting tend to be short. Second, there will be a 5000 token limit chunking with an overlap of 25% in order to reduce context errors.
 
 2.5 Metrics
-We will be using Precision, Recall and F1 as metrics of evaluation. 
+We will be using Precision, Recall and F1 as metrics of evaluation.
 This evaluation will be performed at the field level, type level and Full level were both type and field must match.
 2.5.1 Baseline
 A rule based approach using REGEX for degree extraction will be used to establish a baseline for evaluation.
@@ -190,16 +190,9 @@ Every degree that cannot be parse will be labeled as unknown and a new strategy 
 'Studied in Harvard' and 'Obtained a degree from Hardvard' will be consider under Unknown
 
 ---
-5. LLM Settings: 
+5. LLM Settings:
 >Model=Deepseek-Chat
 > chunk_token_threshold=5000
 > apply_chunking=True
 > overlap_rate=0.25,
 > extra_args={'temperature':0.0}
-
-
-		
-
-
-
-
