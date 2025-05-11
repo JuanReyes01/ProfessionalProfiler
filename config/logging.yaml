@@ -22,13 +22,10 @@ handlers:
     backupCount: 3
 
 loggers:
-  "": # root logger
+  "":
     handlers: [console, file]
     level: INFO
-
-  # per-module override
   professional_profiler.scraping:
     level: DEBUG
-
   professional_profiler.modeling:
     level: WARNING

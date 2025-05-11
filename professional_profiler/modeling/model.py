@@ -1,7 +1,7 @@
 # professional_profiler/modeling/model.py
 
 from professional_profiler.logging.logger import get_logger, setup_logging
-from professional_profiler.logging.config import load_config
+from professional_profiler.config import load_config
 
 # Initialize first thing in main
 setup_logging()

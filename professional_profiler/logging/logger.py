@@ -1,31 +1,34 @@
 # professional_profiler/logging/logger.py
+"""
+The above code defines functions for setting up
+logging configuration from a YAML file and getting
+a logger instance.
+
+:param config_path: The `config_path` parameter in
+the `setup_logging` function is used to specify
+the path to the logging configuration file in YAML
+format. By default, it is set to `_LOG_YAML`, which
+is a Path object pointing to the logging configuration
+file located in the "config" directory relative to
+:type config_path: str | Path
+"""
 import logging.config
 from pathlib import Path
 import yaml
 
-LOGGING_CONFIG = Path(__file__).parent.parent.parent / "config" / "logging.yaml"
+_LOG_YAML = Path(__file__).parent.parent.parent / "config" / "logging.yaml"
 
 
-def setup_logging(config_path: str | Path = LOGGING_CONFIG) -> None:
-    """
-    Reads a dictConfig‐style YAML and configures logging once.
-    """
+def setup_logging(config_path: str | Path = _LOG_YAML) -> None:
     try:
         cfg = yaml.safe_load(Path(config_path).read_text())
         logging.config.dictConfig(cfg)
     except Exception as e:
-        # fallback to a minimal console logger
-        logging.basicConfig(
-            level=logging.INFO,
-            format="%(asctime)s %(levelname)s %(name)s: %(message)s",
-        )
+        logging.basicConfig(level=logging.INFO)
         logging.getLogger(__name__).warning(
-            "[CRITICAL] Could not load logging config %s: %s", config_path, e
+            "Failed to load %r: %s—using basicConfig", config_path, e
         )
 
 
 def get_logger(name: str = None):
-    """
-    Return a standard library Logger(name). Assumes setup_logging() has run.
-    """
     return logging.getLogger(name or __name__)

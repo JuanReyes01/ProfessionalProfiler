@@ -1,4 +1,13 @@
+# PROJECT_ROOT/config/app.yaml
 scraping:
   paths:
     authors: "data/raw/autores.csv"
     processed_data: "data/processed/wikipedia_files"
+  wikipedia:
+    rate_limit: 83 # This is req per minute available
+    max_retries: 3
+    response_code: 429 # Too many requests
+    timeout: 1800 # 1/2 hour, to reset the rate limit
+    language: "en" # Language code for wikipedia to scrape
+  file:
+    name: "authors_wikipedia.csv"
