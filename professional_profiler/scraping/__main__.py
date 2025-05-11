@@ -23,7 +23,7 @@ def load_subject_list(path: str) -> list[str]:
     logger.debug("Loading subjects from %s", path)
     # import and create a list of subjects
     try:
-        subjects = pd.read_csv(path, header=None)[0].tolist()
+        subjects = pd.read_csv(path, header=None)
         logger.debug("Loaded %d subjects", len(subjects))
         return subjects
     except FileNotFoundError:
@@ -32,6 +32,20 @@ def load_subject_list(path: str) -> list[str]:
     except Exception as e:
         logger.error("Error loading subjects: %s", e)
         return []
+
+
+def fetch_wikipedia(subject):
+    logger.debug("Processing subject: %s", subject)
+    wiki_conf = conf.scraping.wikipedia
+    result = getWikipedia(
+        subject,
+        lang=wiki_conf.language,
+        retry=wiki_conf.max_retries,
+        timeout=wiki_conf.timeout,
+        rc=wiki_conf.response_code,
+    )
+    logger.info("Result for %s: %s", subject, result)
+    return result
 
 
 # ===== MAIN =====
@@ -46,23 +60,14 @@ def main():
         return
     logger.debug("Loaded %d subjects", len(subjects))
     # Process each subject
-    for subject in subjects:
-        logger.debug("Processing subject: %s", subject)
-        # Call the Wikipedia API
-        wiki_conf = conf.scraping.wikipedia
-        result = getWikipedia(
-            subject,
-            lang=wiki_conf.language,
-            retry=wiki_conf.max_retries,
-            timeout=wiki_conf.timeout,
-            rc=wiki_conf.response_code,
-        )
-        logger.info("Result for %s: %s", subject, result)
-        # Save the result to a file or database
-        # NOTE: This is not an efficient way to save the results,
-        # but I want it to save partial results in case of an error
-        with open(conf.scraping.paths.processed_data + conf.scraping.file.name, "a") as file:
-            file.write(f"{subject}: {result}\n")
+    # It will be a concat into a dataframe
+    # TODO: 0 is hardcoded, should be a parameter
+    subjects["wiki_result"] = subjects[conf.scraping.file.name_column].apply(fetch_wikipedia)
+    # Save the results to a CSV file
+    output_path = conf.scraping.paths.processed_data
+    logger.debug("Saving results to %s", output_path)
+    subjects.to_csv(output_path, index=False)
+
     logger.info("Finished processing subjects")
 
 

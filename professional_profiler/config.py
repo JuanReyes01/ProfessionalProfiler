@@ -13,6 +13,7 @@ class srapingPaths(BaseModel):
 
 class scrapingfile(BaseModel):
     name: str
+    name_column: str
 
 
 class wikipediaSettings(BaseModel):
