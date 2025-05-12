@@ -1,7 +1,7 @@
 # PROJECT_ROOT/config/app.yaml
 scraping:
   paths:
-    authors: "data/raw/authors_normalized.csv"
+    authors: "data/test/test_wikipedia_normalized.csv"
     processed_data: "data/processed/wikipedia_files"
   wikipedia:
     rate_limit: 83 # This is req per minute available

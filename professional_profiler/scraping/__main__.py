@@ -1,15 +1,9 @@
-"""
-    This module is the entry point for the wikipedia 'scraping' (I'm using the API) application.
-
-    TODO: create controller main function to handle the scraping process.
-"""
-
 # ===== IMPORTS =====
 
 import sys
 from professional_profiler.logging.logger import setup_logging, get_logger
 from professional_profiler.config import load_app_config
-from professional_profiler.scraping.wikipedia_search import getWikipedia
+from professional_profiler.scraping.wikipedia_search import get_wikipedia, search_html
 import pandas as pd
 
 setup_logging()
@@ -23,7 +17,7 @@ def load_subject_list(path: str) -> list[str]:
     logger.debug("Loading subjects from %s", path)
     # import and create a list of subjects
     try:
-        subjects = pd.read_csv(path, header=None)
+        subjects = pd.read_csv(path)
         logger.debug("Loaded %d subjects", len(subjects))
         return subjects
     except FileNotFoundError:
@@ -37,7 +31,7 @@ def load_subject_list(path: str) -> list[str]:
 def fetch_wikipedia(subject):
     logger.debug("Processing subject: %s", subject)
     wiki_conf = conf.scraping.wikipedia
-    result = getWikipedia(
+    result = get_wikipedia(
         subject,
         lang=wiki_conf.language,
         retry=wiki_conf.max_retries,
@@ -48,6 +42,20 @@ def fetch_wikipedia(subject):
     return result
 
 
+def fetch_source(key):
+    logger.debug("fetching key: %s", key)
+    wiki_conf = conf.scraping.wikipedia
+    result = search_html(
+        key,
+        lang=wiki_conf.language,
+        retry=wiki_conf.max_retries,
+        timeout=wiki_conf.timeout,
+        rc=wiki_conf.response_code,
+    )
+    logger.info("Result for %s: %s", key, result[1:10])
+    return result
+
+
 # ===== MAIN =====
 def main():
 
@@ -55,18 +63,18 @@ def main():
     # Load the subject list
     logger.debug("Loading subject list from %s", conf.scraping.paths.authors)
     subjects = load_subject_list(conf.scraping.paths.authors)
-    if not subjects:
+    if len(subjects) == 0:
         logger.error("No subjects found in the file.")
         return
     logger.debug("Loaded %d subjects", len(subjects))
     # Process each subject
     # It will be a concat into a dataframe
-    # TODO: 0 is hardcoded, should be a parameter
-    subjects["wiki_result"] = subjects[conf.scraping.file.name_column].apply(fetch_wikipedia)
+    subjects["key"] = subjects[conf.scraping.file.name_column].apply(fetch_wikipedia)
+    subjects["source"] = subjects["key"].apply(fetch_source)
     # Save the results to a CSV file
     output_path = conf.scraping.paths.processed_data
     logger.debug("Saving results to %s", output_path)
-    subjects.to_csv(output_path, index=False)
+    subjects.to_csv(output_path + conf.scraping.file.name, index=False)
 
     logger.info("Finished processing subjects")
 
