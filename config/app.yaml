@@ -13,6 +13,11 @@ scraping:
     name: "/authors_wikipedia.csv"
     name_column: "author_name"
 parsing:
-  keywords_path: "data/keywords/keywords.txt"
-  results_path: "data/parsed_files"
-  file_name: "/parsed_results.csv"
+  paths:
+    keywords_path: "data/parsing/keywords.txt"
+    degree_re_path: "data/parsing/degree_pattern.txt"
+    degree_loose_re_path: "data/parsing/loose_degree.txt"
+    blacklist_path: "data/parsing/section_blacklist.txt"
+    results_path: "data/processed/parsed_files"
+  file:
+    file_name: "/parsed_results.csv"

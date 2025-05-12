@@ -30,10 +30,21 @@ class scrapingConfig(BaseModel):
     file: scrapingfile
 
 
-class parsingConfig(BaseModel):
+class parsingPaths(BaseModel):
     keywords_path: str
+    degree_re_path: str
+    degree_loose_re_path: str
+    blacklist_path: str
     results_path: str
+
+
+class parsingFile(BaseModel):
     file_name: str
+
+
+class parsingConfig(BaseModel):
+    paths: parsingPaths
+    file: parsingFile
 
 
 class AppConfig(BaseModel):
