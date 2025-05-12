@@ -30,8 +30,15 @@ class scrapingConfig(BaseModel):
     file: scrapingfile
 
 
+class parsingConfig(BaseModel):
+    keywords_path: str
+    results_path: str
+    file_name: str
+
+
 class AppConfig(BaseModel):
     scraping: scrapingConfig
+    parsing: parsingConfig
 
 
 def load_app_config(path: str | Path = _APP_YAML) -> AppConfig:

@@ -27,5 +27,5 @@ loggers:
     level: INFO
   professional_profiler.scraping:
     level: DEBUG
-  professional_profiler.modeling:
-    level: WARNING
+  professional_profiler.parsing:
+    level: DEBUG

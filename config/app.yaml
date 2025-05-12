@@ -10,5 +10,9 @@ scraping:
     timeout: 1800 # 1/2 hour, to reset the rate limit
     language: "en" # Language code for wikipedia to scrape
   file:
-    name: "authors_wikipedia.csv"
+    name: "/authors_wikipedia.csv"
     name_column: "author_name"
+parsing:
+  keywords_path: "data/keywords/keywords.txt"
+  results_path: "data/parsed_files"
+  file_name: "/parsed_results.csv"
